@@ -1,0 +1,24 @@
+spring:
+  boot:
+    admin:
+      client:
+        url:
+        username: admin
+        password: H3D
+        register-once: false
+        auto-deregistration: true
+        instance:
+          metadata:
+            user:
+              name: actuator
+              password: H3D
+            tags:
+              environment: ${cloud.application.space_name}
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: false
+
+admin:
+  spring:
+    admin: Spring-Admin

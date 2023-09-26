@@ -1,0 +1,52 @@
+spring:
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: false
+    config:
+      server:
+        git:
+          default-label: main
+          clone-on-start: true
+          refresh-rate: 300
+          uri: git@github.com:ch39336699/config.git
+          searchPaths: config
+          ignore-local-ssh-settings: true
+          privateKey: |
+            -----BEGIN EC PRIVATE KEY-----
+            MHcCAQEEIGViUSNM34nlY1FcEwPiNZKxdFjn9X/8nCCsJJA7PA4ioAoGCCqGSM49
+            AwEHoUQDQgAEPJJqpotIVMFUJBlM4wAbg7rbN+YUP2j97HvQAb7R2YVDYJ19IIF1
+            Zt99qOHYWxGfqYZekXPMvSy7fUSPOOHkpQ==
+            -----END EC PRIVATE KEY-----
+  application:
+    name: config-server
+  security:
+    user:
+      name: actuator
+      password: H3D?fxfd
+      roles: ACTUATOR
+
+# endpoint exposure
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+health:
+  config:
+    enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+  cloud:
+    config:
+      server:
+        git:
+          default-label: main
