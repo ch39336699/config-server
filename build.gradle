@@ -1,0 +1,160 @@
+buildscript {
+    ext {
+        springBootVersion = '2.6.6'
+        springCloudVersion = '2021.0.1'
+
+        //nexusUrl = ""
+
+        // nexusUsername and nexusPassword will be set by the shared pipeline when running from Jenkins.
+        // Set the environment variables at the end of the next two lines if you want to upload to Nexus from a local build.
+       // nexusUsername = project.hasProperty('nexusUsername') ? nexusUsername : "$System.env.nexusUsername"
+        //nexusPassword = project.hasProperty('nexusPassword') ? nexusPassword : "$System.env.nexusPassword"
+
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'maven-publish'
+   // id 'net.researchgate.release' version '2.6.0'
+    id 'com.es.em.am.tag' version '5.0.7'
+    //id 'org.sonarqube' version '2.8'
+    id 'jacoco'
+    //id 'pmd'
+    //id 'com.github.spotbugs' version '4.0.5'
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+//ext.repositoryURL = "${nexusUrl}/repository/" + (version.contains('SNAPSHOT') ? 'snapshot' : 'staging')
+ext {
+    set('springBootAdminVersion', "2.3.1")
+}
+
+tag {
+    tagPrefix = ''  // Defaults to 'v' if not set, i.e. tag would be v0.0.1 if not set.
+}
+
+repositories {
+    mavenCentral()
+    //maven { url "${nexusUrl}/repository/redux" }
+	//maven { url "${nexusUrl}/repository/maven-public" }
+   // maven { url "https://repo.spring.io/milestone" }
+}
+
+configurations {
+    pmdRules { transitive = false }
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.1'
+    implementation 'de.codecentric:spring-boot-admin-starter-client'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "de.codecentric:spring-boot-admin-dependencies:${springBootAdminVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional = [
+                    "name"     : "${rootProject.name}",
+                    "branch"   : 'git rev-parse --abbrev-ref HEAD'.execute().text.trim(),
+                    "revision" : 'git rev-list --max-count 1 --timestamp HEAD'.execute().text.trim(),
+                    "buildTime": buildTime() + " in US/Mountain"
+            ]
+        }
+    }
+}
+
+def buildTime() {
+    final dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+    dateFormat.timeZone = TimeZone.getTimeZone('US/Mountain')
+    dateFormat.format(new Date())
+}
+
+task smokeTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'smokeTest'
+    }
+}
+
+bootJar {
+    archiveFileName = 'config-server.jar'
+}
+
+publishing {
+    publications {
+        bootJava(MavenPublication) {
+            artifact bootJar
+        }
+    }
+    repositories {
+    }
+}
+
+//task unzipPmdRules(type: Copy) {
+//  from zipTree(configurations.pmdRules.singleFile)
+//  into "$buildDir/pmdrules"
+//}
+
+//pmdMain.dependsOn 'unzipPmdRules'
+//pmdTest.dependsOn 'unzipPmdRules'
+
+/*pmd {
+    ruleSets = []
+    ruleSetFiles = files(
+        "$buildDir/pmdrules/devframework/pmd6/java/bestpractices.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/errorprone.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/codestyle.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/design.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/documentation.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/multithreading.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/performance.xml",
+        "$buildDir/pmdrules/devframework/pmd6/java/security.xml"
+    )
+    ignoreFailures = true  
+}*/
+    
+/*spotbugs {
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "low"
+}*/
+
+
+test {
+    useJUnitPlatform()
+}
+
+// Backwards compatibility
+task pmd {
+    //dependsOn 'pmdMain'
+  //  dependsOn 'pmdTest'
+}
+
+task findbugs {
+   // dependsOn 'spotbugsMain'
+   // dependsOn 'spotbugsTest'
+}
+
+task jacoco {
+    dependsOn 'jacocoTestReport'
+}
