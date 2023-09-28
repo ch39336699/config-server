@@ -6,7 +6,6 @@ if (!env.BRANCH_NAME) {
     env.BRANCH_NAME = 'master'
 }
 
-
 clearancePipeline {
     node_label = 'java11'
     java_tool = 'JAVA_11'
