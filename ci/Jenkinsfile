@@ -1,4 +1,5 @@
 #!groovy
+@Library('master-pipeline')
 def APP_NAME = 'config-server'
 
 if (!env.BRANCH_NAME) {
