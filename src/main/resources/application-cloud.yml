@@ -18,7 +18,6 @@ spring:
     service-registry:
       auto-registration:
         enabled: false
-
 admin:
   spring:
     admin: Spring-Admin

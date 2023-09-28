@@ -20,11 +20,6 @@ spring:
             -----END EC PRIVATE KEY-----
   application:
     name: config-server
-  security:
-    user:
-      name: actuator
-      password: H3D?fxfd
-      roles: ACTUATOR
 
 # endpoint exposure
 management:
@@ -35,7 +30,9 @@ management:
   endpoint:
     health:
       show-details: always
-
+security:
+  basic:
+    enabled: false
 health:
   config:
     enabled: false
