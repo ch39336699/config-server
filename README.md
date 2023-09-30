@@ -3,7 +3,6 @@ This project is Config Server, Spring Cloud Vault, and connectivity to a config 
 
 
 # Building
-
 To build the application in Gradle:
 ```
 gradle build
